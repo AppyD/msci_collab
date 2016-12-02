@@ -6,7 +6,7 @@
 %% download hadley data with SLP -- MCA between SST and SLP
 
 %%%%% PARAMETERS %%%%%
-NModes = 6  ;
+NModes = 6;
 
 Latitude_min = 10.5; %5.5;
 Latitude_max = 70.5; %55.5;     %latitude ranges for analysis
