@@ -1,9 +1,9 @@
-%% mixed layer depth climatology - de boyer montague
-%% ARGO mixed layers
-%% mixed layer depth through time (200m, 300m etc)
-%% autocorrelate function (between the diff levels)
-%% EOF analysis without the detrend as well
-%% download hadley data with SLP -- MCA between SST and SLP
+% mixed layer depth climatology - de boyer montagut
+% ARGO mixed layers
+% mixed layer depth through time (200m, 300m etc)
+% autocorrelate function (between the diff levels)
+% EOF analysis without the detrend as well
+% download hadley data with SLP -- MCA between SST and SLP
 
 %%%%% PARAMETERS %%%%%
 NModes = 6;
@@ -31,7 +31,7 @@ SST(SST < -200) = NaN;
 [Lt,Ltmin,Ltmax] = cropped(latitude,Latitude_min,Latitude_max);
 [Lg,Lgmin,Lgmax] = cropped(longitude,Longitude_min,Longitude_max);
 [tmin,tmax] = date_indices(start_date,end_date,abs_start,abs_end);
-SST_cropped = SST(Lgmin:Lgmax, Ltmin:Ltmax,tmin:tmax);
+SST_cropped = SST(Lgmin:Lgmax, Ltmin:Ltmax, tmin:tmax);
 
 % cosine area weighting on latitude
 weights = diag(cos(Lt));
@@ -44,8 +44,8 @@ SST_2D = reshape_for_EOF(Lg,Lt,SST_cropped);
 [sst,NaNs] = removeNaN(SST_2D);
 
 % detrend data and remove seasonality
-sstAnom1 = find_anomaly(sst);
-%%sstAnom1 = detrend(sstAnom);
+sstAnom = find_anomaly(sst);
+sstAnom1 = detrend(sstAnom);
 CMM = remove_seasonality_2(sstAnom1);
 sst_data = season_average(CMM,start_date,end_date);
 
@@ -53,16 +53,7 @@ sst_data = season_average(CMM,start_date,end_date);
     clearvars -except sst_data NaNs Lg Lt NModes start_date end_date SST_cropped;
 
 dates = linspace(datenum(start_date), datenum(end_date), size(sst_data,1));
-%dates = linspace(datenum(start_date), datenum(end_date), size(sst_data,2));
 
-% winter means for each year
-% figure();
-% plot(dates,sst_data,'bo-');
-% datetick('x','yyyy');
-% xlabel('Year');
-% ylabel('Winter Anomaly');
-
- 
 %compute SVD
 covariance = (1/(size(sst_data,1)-1))*(sst_data'*sst_data);
 [U,Lambda,UT] = svd(covariance);

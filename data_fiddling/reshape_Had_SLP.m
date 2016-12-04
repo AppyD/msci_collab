@@ -1,5 +1,5 @@
 function reshaped_data = reshape_Had_SLP(data_matrix)
-    
+
     num_rows = 37;    %37 different latitude values
     num_cols = size(data_matrix,2);
     num_months = size(data_matrix,1)/num_rows;
