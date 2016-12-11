@@ -126,7 +126,7 @@ for i=1:length(timeSnapshots) % row number
     plot2 = plot2.Run('linecontour', [60], {'overlay'});
     
     
-    %{
+    %
     subplot(3,4,9);
     data = double(WarmTongue.WarmTongue(:,:,i));
     data(data==0)=NaN;
@@ -149,19 +149,19 @@ for i=1:length(timeSnapshots) % row number
     [row,col]=ind2sub(size(toPlot),idx);
     hold on;
     plot([longitude(row)],[latitude(col)], 'kx', 'MarkerSize', 30,'LineWidth', 300);
-    %}
     
     
     
     
     
+    %
     subplot(3,4,5);
     data = double(WarmTongue.WarmTongue(:,:,i));
     data(data==0)=NaN;
     toPlot = WarmTongue.MeridGrad(:,:,i);
     toPlot = toPlot .* data;
    
-    plot2 = Plotter(WarmTongue.MeridGrad(:,:,i), longitude, latitude,[270, 320], [20, 50],2.0,1,0);
+    plot2 = Plotter(toPlot, longitude, latitude,[270, 320], [20, 50],2.0,1,0);
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Point for interrogation\nMerid Lap Overlap');
     plot2.CaxL = -0.01; plot2.CaxU = 0.01;
@@ -199,34 +199,9 @@ for i=1:length(timeSnapshots) % row number
     
     hold on;
     longitude_interp = 0:2:359;
-    latitude_interp = -90:2:90;
+    latitude_interp = 1
+    merid_grad_interp = interp2(longitude,latitude,WarmTongue.MeridGrad(:,:,i)',,);
     quiver(longitude, latitude, WarmTongue.MeridGrad(:,:,i)', WarmTongue.ZonalGrad(:,:,i)',6, 'Color', 'black');
-    
-    
-    
-    subplot(3,4,11); 
-    
-    plot2 = Plotter(double(WarmTongue.MeridGrad(:,:,i)+WarmTongue.ZonalGrad(:,:,i)), longitude, latitude,[270, 320], [20, 50],3.0,0,0);
-    plot2.FigureHandle = figurehandle;
-    plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Divergence with SST contour');
-    plot2.CaxL = 0; plot2.CaxU = 30;
-    
-    plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(jet(100));
-    plot2 = plot2.AddLand(sst_full(:,:,1),1);
-
-    plot2.RunData = sst_full(:,:,n)-273.15;
-    plot2 = plot2.Run('linecontour', [20], {'overlay'});
-    
-    %{
-    hold on;
-    longitude_interp = 0:2:359;
-    latitude_interp = -90:2:90;
-    [longitudeMesh, latitudeMesh] = meshgrid(longitude, latitude);
-    [longitude_interpMesh, latitude_interpMesh] = meshgrid(longitude_interp, latitude_interp);
-    merid_grad_interp = interp2(longitudeMesh,latitudeMesh,WarmTongue.MeridGrad(:,:,i)',longitude_interpMesh,latitude_interpMesh);
-    zonal_grad_interp = interp2(longitudeMesh,latitudeMesh,WarmTongue.ZonalGrad(:,:,i)',longitude_interpMesh,latitude_interpMesh);
-    quiver(longitude_interp, latitude_interp, merid_grad_interp, zonal_grad_interp ,6, 'Color', 'black');
-    %}
     
     
     
