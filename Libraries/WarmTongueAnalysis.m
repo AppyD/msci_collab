@@ -160,6 +160,8 @@ classdef WarmTongueAnalysis
             ref_x = 999;
             ref_y = 999;
             
+            found = 0;
+            
             for i=1:length(longitude)
                 for j=1:length(latitude)
                     n = (length(longitude)*(j-1)) + i; %positionInData
@@ -182,6 +184,7 @@ classdef WarmTongueAnalysis
                                     ref_x = lo(n);
                                     ref_y = la(n);
                                     tongue=tongue2;
+                                    found =1;
                                 end
                             end
                         end
@@ -190,33 +193,41 @@ classdef WarmTongueAnalysis
             end
             
             
-            % tongue is now the Cluster object with the warm tongue
-            % (majority)
-            obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i) = tongue.FoundCluster;
-            
-            
-            %size(obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i))
-            
-            isolated_wt = double(tongue.FoundCluster);
-            isolated_wt(isolated_wt==0) = NaN;
-            
-            
-            
-            lonMesh_wt = lonMesh .* isolated_wt;
-            latMesh_wt = latMesh .* isolated_wt;
-            
-            lon_wt = lonMesh_wt(:);
-            lat_wt = latMesh_wt(:);
-            
-            lon_wt(isnan(lon_wt))=[];
-            lat_wt(isnan(lat_wt))=[];
-            
-            p = polyfit(lon_wt,lat_wt, 1);
-            grad = p(1,1);
-            intercept = p(1,2);
-            
-            u = [1;grad];
-            u = u ./ norm(u);
+            if found == 0
+                u = NaN;
+                grad = NaN;
+                intercept = NaN;
+                disp('Error');
+            else
+
+                % tongue is now the Cluster object with the warm tongue
+                % (majority)
+                obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i) = tongue.FoundCluster;
+
+
+                %size(obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i))
+
+                isolated_wt = double(tongue.FoundCluster);
+                isolated_wt(isolated_wt==0) = NaN;
+
+
+
+                lonMesh_wt = lonMesh .* isolated_wt;
+                latMesh_wt = latMesh .* isolated_wt;
+
+                lon_wt = lonMesh_wt(:);
+                lat_wt = latMesh_wt(:);
+
+                lon_wt(isnan(lon_wt))=[];
+                lat_wt(isnan(lat_wt))=[];
+
+                p = polyfit(lon_wt,lat_wt, 1);
+                grad = p(1,1);
+                intercept = p(1,2);
+
+                u = [1;grad];
+                u = u ./ norm(u);
+            end
         end
     end
     methods (Static)

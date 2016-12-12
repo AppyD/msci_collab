@@ -1,6 +1,6 @@
 %% USER DEFINED
 addpath(genpath('../Libraries'));
-addpath(genpath('../../../Gavin/Code/Libraries'));
+%addpath(genpath('../../../Gavin/Code/Libraries'));
 dataLocation_era = '../../../Gavin/Results/_WarmTongue_Dev_1/era_surface.nc';
 %%
 
@@ -13,10 +13,11 @@ latitude = ncread(dataLocation_era, 'latitude');
 timeSeries = ncread(dataLocation_era, 'time');
 %pcolor(longitude, latitude, sst'); grid off; shading interp;
 %%
-timeSnapshots = [3,96,96,102,107, 384, 390,395];
+timeSnapshots = [3,96,96,102,107, 384, 390,395, 247, 249, 259];
 WarmTongue = WarmTongueAnalysis(longitude, latitude, sst_full(:,:,timeSnapshots));
 WarmTongue = WarmTongue.Run();
 %%
+%{
 figurehandle = figure;
 for i=1:3 % row number
     for j=1:3 % column number
@@ -40,6 +41,8 @@ for i=1:3 % row number
     end
 end
 mtit(figurehandle, sprintf('SST Grad within 0.5std of 0 with\nSST Contours _ ERA'));
+%}
+
 %%
 % Create antoher plot which is for each time snapshot
 for i=1:length(timeSnapshots) % row number
@@ -203,10 +206,10 @@ for i=1:length(timeSnapshots) % row number
     quiver(longitude, latitude, WarmTongue.MeridGrad(:,:,i)', WarmTongue.ZonalGrad(:,:,i)',6, 'Color', 'black');
     
     
-    
+    %{
     subplot(3,4,11); 
     
-    plot2 = Plotter(double(WarmTongue.MeridGrad(:,:,i)+WarmTongue.ZonalGrad(:,:,i)), longitude, latitude,[270, 320], [20, 50],3.0,0,0);
+    plot2 = Plotter(double((WarmTongue.MeridGrad(:,:,i)*u(2))+(WarmTongue.ZonalGrad(:,:,i)*u(1))), longitude, latitude,[270, 320], [20, 50],3.0,0,0);
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Divergence with SST contour');
     plot2.CaxL = -0.025; plot2.CaxU = 0.025;
@@ -216,7 +219,7 @@ for i=1:length(timeSnapshots) % row number
 
     plot2.RunData = sst_full(:,:,n)-273.15;
     plot2 = plot2.Run('linecontour', [20], {'overlay'});
-    
+    %}
     %{
     hold on;
     longitude_interp = 0:2:359;
@@ -285,6 +288,21 @@ for i=1:length(timeSnapshots) % row number
     
     
     
+
+    subplot(3,4,11);
+
+    plot2 = Plotter(double((WarmTongue.MeridGrad(:,:,i)*u(2))+(WarmTongue.ZonalGrad(:,:,i)*u(1))), longitude, latitude,[270, 320], [20, 50],3.0,0,0);
+    plot2.FigureHandle = figurehandle;
+    plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Grad T dot U');
+    plot2.CaxL = -0.015; plot2.CaxU = 0.015;
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(jet(100));
+    plot2 = plot2.AddLand(sst_full(:,:,1),1);
+    plot2.RunData = sst_full(:,:,n)-273.15;
+    plot2 = plot2.Run('linecontour', [20], {'overlay'});
+
+
+
+
     
     mtit(figurehandle, sprintf(['Snapshot: ', num2str(timeSnapshots(i))]));
     set(gcf,'units','normalized','outerposition',[0 0 1 1]);
@@ -301,6 +319,7 @@ end
 
 
 %%
+%{
 
 
 
@@ -343,4 +362,4 @@ plot(longitude, y, 'k-');
 
 mtit(figurehandle, sprintf(['Snapshot: ', num2str(timeSnapshots(i))]));
 set(gcf,'units','normalized','outerposition',[0 0 1 1]);
-
+%}

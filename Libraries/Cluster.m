@@ -42,7 +42,7 @@ classdef Cluster
             x = coordinates(1);
             y = coordinates(2);
             
-            if ( (0<=x) && (obj.a>=x) && (0<=y) && (obj.b>=y))
+            if ( (1<=x) && (obj.a>=x) && (1<=y) && (obj.b>=y))
                 nocols= size(obj.Data, 2);
                 norows = size(obj.Data,1);
                 positionInData = norows*(y-1)   +   x;
