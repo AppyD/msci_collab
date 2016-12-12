@@ -7,6 +7,7 @@ classdef WarmTongueAnalysis
         latitude
         temperatureData
         WarmTongue
+        WarmTongueIsolated
         lonRange
         latRange
         %%%% Temporary properties? %%%%
@@ -15,6 +16,7 @@ classdef WarmTongueAnalysis
         ZonalLap
         MeridLap
         CrossLap
+        tmp
     end
     
     methods
@@ -26,11 +28,13 @@ classdef WarmTongueAnalysis
         function obj = Run(obj)
             timelen = size(obj.temperatureData, 3);
             obj.WarmTongue = double(zeros(size(obj.temperatureData)));
+            obj.WarmTongueIsolated = double(zeros(size(obj.temperatureData)));
             obj.ZonalGrad = double(zeros(size(obj.temperatureData)));
             obj.MeridGrad = double(zeros(size(obj.temperatureData)));
             obj.ZonalLap = double(zeros(size(obj.temperatureData)));
             obj.MeridLap = double(zeros(size(obj.temperatureData)));
             obj.CrossLap = double(zeros(size(obj.temperatureData)));
+            
             for i = 1:timelen
                 sst = obj.temperatureData(:,:,i);
                 [zonal_grad, merid_grad] = obj.gradientH(sst, obj.longitude, obj.latitude);
@@ -132,13 +136,16 @@ classdef WarmTongueAnalysis
             matrix(obj.lonRange, obj.latRange)=1;
         end
         
-        function u = arrow(obj, number)
+        function [u, grad, intercept] = arrow(obj, number)
             warmtongue = obj.WarmTongue(:,:,number);
-            [lonMesh, latMesh] = meshgrid(obj.longitude, obj.latitude);
+            
             warmtongue = warmtongue(obj.lonRange, obj.latRange);
             longitude = obj.longitude(obj.lonRange);
             latitude = obj.latitude(obj.latRange);
+            
             [lonMesh, latMesh] = meshgrid(longitude, latitude);
+            lonMesh = lonMesh'; latMesh = latMesh';
+            
             wt = warmtongue(:);
             lo = lonMesh(:);
             la = latMesh(:);
@@ -146,31 +153,71 @@ classdef WarmTongueAnalysis
             wt_nan = double(wt);
             wt_nan(wt_nan==0) = NaN;
             
+            tongue = Cluster(warmtongue);
+            
+            
             % calculate the reference coordinates
             ref_x = 999;
             ref_y = 999;
-            for i=1:length(wt)
-                if wt(i)==1
-                    if ref_x > lo(i)
-                        ref_x = lo(i);
-                        ref_y = la(i);
-                    
+            
+            for i=1:length(longitude)
+                for j=1:length(latitude)
+                    n = (length(longitude)*(j-1)) + i; %positionInData
+                    %if warmtongue(i,j) ~= wt(n)
+                    %    disp('ERROR');
+                    %end
+                    if wt(n)==1
                         
-            
-            
-            n=0;
-            la_cum = 0;
-            lo_cum = 0;
-            for i=1:length(wt)
-                if isnan(wt(i))==0
-                    n=n+1;
-                    la_cum = la_cum + la(i);
-                    lo_cum = lo_cum + lo(i);
+                        if ref_x >= lo(n)
+
+                            if tongue.identificationList(n)==0
+                                
+                                
+                                tongue2 = tongue.IsolateCluster([i,j]);
+                                %size(tongue2.Data)
+                                %size(tongue2.FoundCluster)
+
+                                noOfPointsInCluster = sum(sum(tongue2.FoundCluster==1));
+                                if noOfPointsInCluster > 20
+                                    ref_x = lo(n);
+                                    ref_y = la(n);
+                                    tongue=tongue2;
+                                end
+                            end
+                        end
+                    end
                 end
             end
-                
-        end
             
+            
+            % tongue is now the Cluster object with the warm tongue
+            % (majority)
+            obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i) = tongue.FoundCluster;
+            
+            
+            %size(obj.WarmTongueIsolated(obj.lonRange,obj.latRange,i))
+            
+            isolated_wt = double(tongue.FoundCluster);
+            isolated_wt(isolated_wt==0) = NaN;
+            
+            
+            
+            lonMesh_wt = lonMesh .* isolated_wt;
+            latMesh_wt = latMesh .* isolated_wt;
+            
+            lon_wt = lonMesh_wt(:);
+            lat_wt = latMesh_wt(:);
+            
+            lon_wt(isnan(lon_wt))=[];
+            lat_wt(isnan(lat_wt))=[];
+            
+            p = polyfit(lon_wt,lat_wt, 1);
+            grad = p(1,1);
+            intercept = p(1,2);
+            
+            u = [1;grad];
+            u = u ./ norm(u);
+        end
     end
     methods (Static)
         function grad = gradientIrregular1D(x,y)

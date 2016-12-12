@@ -209,7 +209,7 @@ for i=1:length(timeSnapshots) % row number
     plot2 = Plotter(double(WarmTongue.MeridGrad(:,:,i)+WarmTongue.ZonalGrad(:,:,i)), longitude, latitude,[270, 320], [20, 50],3.0,0,0);
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Divergence with SST contour');
-    plot2.CaxL = 0; plot2.CaxU = 30;
+    plot2.CaxL = -0.025; plot2.CaxU = 0.025;
     
     plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(jet(100));
     plot2 = plot2.AddLand(sst_full(:,:,1),1);
@@ -244,6 +244,47 @@ for i=1:length(timeSnapshots) % row number
 
     plot2.RunData = sst_full(:,:,n)-273.15;
     plot2 = plot2.Run('linecontour', [20], {'overlay', 'contourlabels'});
+    hold on;
+    
+    [u,grad,incp] = WarmTongue.arrow(i);
+    y = (grad .* longitude) + incp;
+    plot(longitude, y, 'k-');
+    
+    
+    
+    subplot(3,4,9);
+    curvature = (WarmTongue.ZonalLap(:,:,i) .* (u(1).^2)) + (2*WarmTongue.CrossLap(:,:,i) .* u(1) .* u(2)) + (WarmTongue.MeridLap(:,:,i) .* (u(2).^2));
+    plot2 = Plotter(curvature, longitude, latitude,[270, 320], [20, 50],8.0,1,0);
+    plot2.FigureHandle = figurehandle;
+    plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Curvature (Para)');
+    plot2.CaxL = -5e-5; plot2.CaxU = 5e-5;
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
+    plot2 = plot2.AddLand(sst_full(:,:,1),1);
+
+    plot2.RunData = sst_full(:,:,n)-273.15;
+    plot2 = plot2.Run('linecontour', [20], {'overlay'});
+    hold on;
+    
+    
+    
+    subplot(3,4,12);
+    uold = u;
+    u(2) = u(1);
+    u(1) = (1 - (u(1)^2))^0.5;
+    curvature = (WarmTongue.ZonalLap(:,:,i) .* (u(1).^2)) + (2*WarmTongue.CrossLap(:,:,i) .* u(1) .* u(2)) + (WarmTongue.MeridLap(:,:,i) .* (u(2).^2));
+    plot2 = Plotter(curvature, longitude, latitude,[270, 320], [20, 50],8.0,1,0);
+    plot2.FigureHandle = figurehandle;
+    plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Curvature (Perp)');
+    plot2.CaxL = -5e-5; plot2.CaxU = 5e-5;
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
+    plot2 = plot2.AddLand(sst_full(:,:,1),1);
+
+    plot2.RunData = sst_full(:,:,n)-273.15;
+    plot2 = plot2.Run('linecontour', [20], {'overlay'});
+    hold on;
+    
+    
+    
     
     mtit(figurehandle, sprintf(['Snapshot: ', num2str(timeSnapshots(i))]));
     set(gcf,'units','normalized','outerposition',[0 0 1 1]);
@@ -275,3 +316,31 @@ playback.overlayData = sst_full(WarmTongue.lonRange, WarmTongue.latRange, :);
 playback = playback.recordanimation('long', 'lat', 'warm tongue', '../../../Gavin/Results/WarmTongue.avi', 9, 1, land(WarmTongue.lonRange, WarmTongue.latRange));
 
 %%
+
+
+
+%TEST
+
+i=1;
+%split figure into 5 across, 3 down? or 4 * 3?
+subplot(3,4,8);
+plot2 = Plotter(double(WarmTongue.WarmTongue(:,:,i)), longitude, latitude,[270, 320], [20, 50],8.0,1,0);
+plot2.FigureHandle = figurehandle;
+plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', '');
+plot2.CaxL = -1; plot2.CaxU = 1;
+plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
+plot2 = plot2.AddLand(sst_full(:,:,1),1);
+
+plot2.RunData = sst_full(:,:,n)-273.15;
+plot2 = plot2.Run('linecontour', [20], {'overlay', 'contourlabels'});
+hold on;
+
+[u,grad,incp] = WarmTongue.arrow(i);
+y = (grad .* longitude) + incp;
+plot(longitude, y, 'k-');
+
+
+
+mtit(figurehandle, sprintf(['Snapshot: ', num2str(timeSnapshots(i))]));
+set(gcf,'units','normalized','outerposition',[0 0 1 1]);
+

@@ -31,6 +31,7 @@ classdef WarmTongueAnalysis
             obj.ZonalLap = double(zeros(size(obj.temperatureData)));
             obj.MeridLap = double(zeros(size(obj.temperatureData)));
             obj.CrossLap = double(zeros(size(obj.temperatureData)));
+            
             for i = 1:timelen
                 sst = obj.temperatureData(:,:,i);
                 [zonal_grad, merid_grad] = obj.gradientH(sst, obj.longitude, obj.latitude);
@@ -132,14 +133,49 @@ classdef WarmTongueAnalysis
             matrix(obj.lonRange, obj.latRange)=1;
         end
         
-        function u = arrow(obj, i)
-            warmtongue = obj.WarmTongue(:,:,i);
+        function u = arrow(obj, number)
+            warmtongue = obj.WarmTongue(:,:,number);
+            [lonMesh, latMesh] = meshgrid(obj.longitude, obj.latitude);
             warmtongue = warmtongue(obj.lonRange, obj.latRange);
             longitude = obj.longitude(obj.lonRange);
             latitude = obj.latitude(obj.latRange);
-            for 1:length(warmtongue(:))
-        end
+            [lonMesh, latMesh] = meshgrid(longitude, latitude);
+            wt = warmtongue(:);
+            lo = lonMesh(:);
+            la = latMesh(:);
             
+            wt_nan = double(wt);
+            wt_nan(wt_nan==0) = NaN;
+            
+            tongue = Cluster(warmtongue);
+            
+            % calculate the reference coordinates
+            ref_x = 999;
+            ref_y = 999;
+            
+            for i=1:len(longitude)
+                for j=1:len(latitude)
+                    n = (len(latitude)*(i-1)) + j; %positionInData
+                    if wt(n)==1
+                        if ref_x >= lo(n)
+                            if tongue.identificationList(n)==0
+                                tongue = tongue.isolateCluster([i,j]);
+
+                                noOfPointsInCluster = sum(sum(tongue.FoundCluster==1));
+                                if noOfPointsInCluster > 20
+                                    ref_x = lo(n);
+                                    ref_y = la(n);
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            
+            % tongue is now the Cluster object with the majority
+            
+            
+           
     end
     methods (Static)
         function grad = gradientIrregular1D(x,y)
