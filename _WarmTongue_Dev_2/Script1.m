@@ -1,6 +1,6 @@
 %% USER DEFINED
+addpath(genpath('../../../Gavin/Code/Libraries'));
 addpath(genpath('../Libraries'));
-%addpath(genpath('../../../Gavin/Code/Libraries'));
 dataLocation_era = '../../../Gavin/Results/_WarmTongue_Dev_1/era_surface.nc';
 %%
 
@@ -68,7 +68,7 @@ for i=1:length(timeSnapshots) % row number
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Merid Grad');
     plot2.CaxL = -0.04; plot2.CaxU = 0.04;
-    plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(redblue(100));
     plot2 = plot2.AddLand(sst_full(:,:,1),1);
 
     plot2.RunData = WarmTongue.MeridGrad(:,:,i);
@@ -168,7 +168,7 @@ for i=1:length(timeSnapshots) % row number
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Point for interrogation\nMerid Lap Overlap');
     plot2.CaxL = -0.01; plot2.CaxU = 0.01;
-    plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(jet(100));
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
     plot2 = plot2.AddLand(sst_full(:,:,1),1);
 
     plot2.RunData = WarmTongue.MeridLap(:,:,i);
@@ -295,7 +295,7 @@ for i=1:length(timeSnapshots) % row number
     plot2.FigureHandle = figurehandle;
     plot2 = plot2.setLabels('Longitude \phi', 'Latitude \theta', 'Grad T dot U');
     plot2.CaxL = -0.015; plot2.CaxU = 0.015;
-    plot2 = plot2.Run('pcolor', [NaN], {'overlay'}); colormap(jet(100));
+    plot2 = plot2.Run('pcolor', [NaN], {'overlay'});
     plot2 = plot2.AddLand(sst_full(:,:,1),1);
     plot2.RunData = sst_full(:,:,n)-273.15;
     plot2 = plot2.Run('linecontour', [20], {'overlay'});
