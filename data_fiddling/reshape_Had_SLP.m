@@ -12,4 +12,6 @@ function reshaped_data = reshape_Had_SLP(data_matrix)
         reshaped_data(:,:,page) = data_matrix(i:i+36,:);
     end
     
+    reshaped_data = permute(reshaped_data,[2,1,3]);
+    
 end

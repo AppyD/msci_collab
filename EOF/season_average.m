@@ -8,7 +8,7 @@ function [winter_anomaly] = season_average(M,startd,endd)
     end_month = month(endd);
     nwinters = year(endd)-year(startd);
     
-    X = M(12-start_month:end-endd+3,:);
+    X = M(12-start_month:end-end_month+3,:);
                 %X = circshift(M,start_month+1);  
     
     winter_data = zeros(nwinters,size(X,2));
