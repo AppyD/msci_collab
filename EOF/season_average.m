@@ -15,7 +15,7 @@ function [winter_anomaly] = season_average(M,startd,endd)
     ctr = 1;
     
     for r = 1:12:size(X,1)
-        winter_data(ctr,:) = mean(X(r:r+4,:),1);
+        winter_data(ctr,:) = mean(X(r:r+4,:),1);     % column-wise mean
         ctr = ctr + 1;
     end
     

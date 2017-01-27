@@ -7,8 +7,8 @@ Longitude_min = 10.5;% -40.5;
 Longitude_max = -100.5;  %longitude ranges for analysis
 
 % NB dates are in MM-dd-yyyy format!!!
-start_date = '01-01-2004';
-end_date = '12-01-2014';
+start_date = '01-01-1870'; %'01-01-2004';
+end_date = '01-01-2015'; %'12-01-2014';
 abs_start = '01-01-1870';
 abs_end = '01-01-2015';
 

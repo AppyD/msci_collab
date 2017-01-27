@@ -50,18 +50,19 @@ CMM = remove_seasonality_2(sstAnom1);
 sst_data = season_average(CMM,start_date,end_date);
 
     % keep the workspace tidy!
-    clearvars -except sst_data NaNs Lg Lt NModes start_date end_date SST_cropped;
+    % clearvars -except sst_data NaNs Lg Lt NModes start_date end_date SST_cropped;
 
 dates = linspace(datenum(start_date), datenum(end_date), size(sst_data,1));
 
 %compute SVD
 covariance = (1/(size(sst_data,1)-1))*(sst_data'*sst_data);
-[U,Lambda,UT] = svd(covariance);
+[U,Lambda,UT] = svd(covariance,0);
 
 %normalised eigenvalues
 norm = sum(diag(Lambda));
 mean_orig_field = mean(SST_cropped,3);
 
+%%
 % plot the modes
 figure();
 for i = 1:NModes
@@ -92,6 +93,7 @@ end
 % ylabel('Percentage contribution');
 % xlabel('Mode number k');
 
+%%
 %plot time series for data
 figure()
 for i = 1:NModes
@@ -100,6 +102,9 @@ for i = 1:NModes
     
     EOF = U(:,i);
     PC = sst_data*EOF;
+    std_sst = std(PC);
+    PC1 = PC*(diag(Lambda(i,i))/(norm/100))/std_sst;
+    PC = movmean(PC1,5);
     
     plot(dates,PC,'bo-');
     datetick('x','yyyy');
